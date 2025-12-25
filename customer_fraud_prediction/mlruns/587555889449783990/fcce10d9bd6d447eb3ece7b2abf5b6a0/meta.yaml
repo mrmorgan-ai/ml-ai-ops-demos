@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/jhoni/Documents/LooperAI/repositorios/ml-ai-ops-demos/customer_churn_prediction/mlruns/587555889449783990/fcce10d9bd6d447eb3ece7b2abf5b6a0/artifacts
+end_time: 1766622540015
+entry_point_name: ''
+experiment_id: '587555889449783990'
+lifecycle_stage: active
+run_id: fcce10d9bd6d447eb3ece7b2abf5b6a0
+run_name: 01_data_loading_and_split
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1766622524809
+status: 3
+tags: []
+user_id: jhoni
