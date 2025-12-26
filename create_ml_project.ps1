@@ -6,21 +6,12 @@ $projectName = "customer_churn_prediction"
 New-Item -ItemType Directory -Force -Path $projectName | Out-Null
 Set-Location $projectName
 
-# Config files
-New-Item -ItemType Directory -Force -Path "config" | Out-Null
-New-Item -ItemType File -Force -Path "config/local.yaml" | Out-Null
-New-Item -ItemType File -Force -Path "config/prod.yaml" | Out-Null
-
 # Data directories
-New-Item -ItemType Directory -Force -Path "data/01-raw" | Out-Null
-New-Item -ItemType Directory -Force -Path "data/02-preprocessed" | Out-Null
-New-Item -ItemType Directory -Force -Path "data/03-features" | Out-Null
-New-Item -ItemType Directory -Force -Path "data/04-predictions" | Out-Null
-
-# Entrypoint scripts
-New-Item -ItemType Directory -Force -Path "entrypoint" | Out-Null
-New-Item -ItemType File -Force -Path "entrypoint/inference.py" | Out-Null
-New-Item -ItemType File -Force -Path "entrypoint/train.py" | Out-Null
+New-Item -ItemType Directory -Force -Path "data/raw" | Out-Null
+New-Item -ItemType Directory -Force -Path "data/preprocessed" | Out-Null
+New-Item -ItemType Directory -Force -Path "data/features" | Out-Null
+New-Item -ItemType Directory -Force -Path "data/predictions" | Out-Null
+New-Item -ItemType Directory -Force -Path "data/processed" | Out-Null
 
 # Notebooks
 New-Item -ItemType Directory -Force -Path "notebooks" | Out-Null
