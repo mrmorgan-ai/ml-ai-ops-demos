@@ -23,8 +23,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     This function calculate both standard ML and business metrics for fraud detection
     
     Parameters:
-    -----------
-    y_true : array-like, shape (n_samples,)
+23    y_true : array-like, shape (n_samples,)
         True binary labels (0 = legitimate, 1 = fraud)
         
     y_pred : array-like, shape (n_samples,)
@@ -287,7 +286,340 @@ def plot_confusion_matrix(y_true, y_pred, save_path=None, normalize=False):
     plt.close()
     
     return save_path
+
+def plot_precision_recall_curve(y_true,y_pred_proba, save_path=None):
+    """
+    Plot Precision-Recall curve - THE key visualization for imbalanced classification
     
+    The PR curve shows the tradeoff between precision (accuracy of fraud flags) and
+    recall (percentage of frauds caught) at different classification thresholds.
+    
+    For imbalanced fraud detection (0.17% fraud rate):
+    - A random classifier would have PR-AUC ≈ 0.0017 (the fraud rate)
+    - A perfect classifier would have PR-AUC = 1.0
+    - Real models typically achieve PR-AUC between 0.3 and 0.8
+    
+    Parameters:
+    y_true : array-like
+        True binary labels (0 = legitimate, 1 = fraud)
+        
+    y_pred_proba : array-like
+        Predicted probabilities for positive class (fraud)
+        
+    save_path : str, optional
+        Path to save the plot
+    
+    Returns:
+    str : Path where plot was saved
+    
+    Notes:
+    The PR curve is MORE informative than ROC curve for imbalanced data because:
+    - ROC uses False Positive RATE (FP / (FP + TN)) - misleading when TN is huge
+    - PR uses actual False Positive count in precision calculation
+    - PR focuses on minority class performance
+    """
+    # Calculate precision and recall at different thresholds
+    precision,recall,thresholds = precision_recall_curve(y_true,y_pred_proba)
+    
+    # Calculate PR-AUC (Average precision)
+    pr_auc = average_precision_score(y_true, y_pred_proba)
+    
+    # Calculate basesline
+    fraud_rate = np.mean(y_pred)
+    
+    # Create figure
+    plt.figure(figsize=(10, 8))
+    
+    # Plot PR curve
+    plt.plot(
+        recall, precision,
+        color='blue',
+        lw=3,
+        label=f'Model (PR-AUC = {pr_auc:.4f})'
+    )
+    
+    # Plot baseline (random classifier)
+    # For imbalanced data, random classifier PR-AUC ≈ fraud_rate
+    plt.plot(
+        [0, 1], [fraud_rate, fraud_rate],
+        color='red',
+        lw=2,
+        linestyle='--',
+        label=f'Random Classifier (Baseline = {fraud_rate:.4f})'
+    )
+    
+    # Plot iso-F1 curves (curves of constant F1-score)
+    f_scores = np.linspace(0.2, 0.9, num=8)
+    for f_score in f_scores:
+        x = np.linspace(0.01, 1)
+        y = f_score * x / (2 * x - f_score)
+        plt.plot(x[y >= 0], y[y >= 0], color='gray', alpha=0.3, linestyle=':')
+    
+    plt.annotate('Iso-F1 curves', xy=(0.9, 0.9), xytext=(0.7, 0.85),
+                arrowprops=dict(arrowstyle='->', color='gray'),
+                fontsize=10, color='gray')
+    
+    # Formatting
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall (Fraud Detection Rate)', fontsize=14, fontweight='bold')
+    plt.ylabel('Precision (Accuracy of Flags)', fontsize=14, fontweight='bold')
+    plt.title('Precision-Recall Curve - Fraud Detection\nHigher PR-AUC = Better Model', 
+              fontsize=16, fontweight='bold', pad=20)
+    plt.legend(loc='upper right', fontsize=12)
+    plt.grid(True, alpha=0.3)
+    
+    # Add interpretation box
+    interpretation = (
+        f"Model Performance:\n"
+        f"• PR-AUC: {pr_auc:.4f}\n"
+        f"• Baseline: {fraud_rate:.4f} (random)\n"
+        f"• Improvement: {(pr_auc/fraud_rate):.1f}x better than random\n\n"
+        f"Interpretation:\n"
+        f"• Higher curve = better model\n"
+        f"• Top-right corner = ideal (100% precision & recall)\n"
+        f"• Trade-off: High recall → more false alarms"
+    )
+    
+    plt.text(
+        0.02, 0.02, interpretation,
+        transform=plt.gca().transAxes,
+        fontsize=9,
+        verticalalignment='bottom',
+        bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8)
+    )
+    
+    plt.tight_layout()
+    
+    # Save if path provided
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"✓ Precision-Recall curve saved to: {save_path}")
+    else:
+        plt.show()
+    
+    plt.close()
+    
+    return save_path
+
+def find_optimal_threshold(y_true, y_pred_proba, 
+                          fn_cost=150, fp_cost=5, tp_cost=2, tn_cost=0,
+                          save_path=None):
+    """
+    Find optimal classification threshold by minimizing business cost
+    
+    The default threshold of 0.5 is rarely optimal for imbalanced classification.
+    This function finds the threshold that minimizes total business cost by:
+    1. Testing 1000 different thresholds (0.001 to 0.999)
+    2. Calculating business cost at each threshold
+    3. Returning the threshold with minimum cost
+    
+    Parameters:
+    -----------
+    y_true : array-like
+        True binary labels
+        
+    y_pred_proba : array-like
+        Predicted probabilities for positive class
+        
+    fn_cost, fp_cost, tp_cost, tn_cost : float
+        Business costs for each outcome type
+        
+    save_path : str, optional
+        Path to save the threshold optimization plot
+    
+    Returns:
+    --------
+    dict : Contains optimal_threshold, optimal_cost, cost_at_default (0.5)
+    
+    Notes:
+    ------
+    For fraud detection with extreme imbalance:
+    - Default threshold (0.5) often catches <30% of frauds
+    - Optimal threshold is typically much lower (0.05 to 0.25)
+    - Lower threshold = more false alarms but fewer missed frauds
+    - Goal: Minimize total cost, not maximize F1-score
+    
+    Official Reference:
+    ------------------
+    Cost-Sensitive Learning: https://scikit-learn.org/stable/auto_examples/model_selection/plot_cost_sensitive_learning.html
+    
+    Examples:
+    ---------
+    >>> result = find_optimal_threshold(y_val, y_pred_proba, save_path='outputs/threshold.png')
+    >>> print(f"Optimal threshold: {result['optimal_threshold']:.3f}")
+    Optimal threshold: 0.127
+    """
+    
+    # Test range of thresholds
+    thresholds = np.linspace(0.001, 0.999, 1000)
+    costs = []
+    precisions = []
+    recalls = []
+    f1_scores = []
+    
+    print("\n=== Threshold Optimization ===")
+    print("Testing 1000 thresholds to minimize business cost...")
+    
+    # Calculate metrics at each threshold
+    for threshold in thresholds:
+        # Apply threshold to get predictions
+        y_pred = (y_pred_proba >= threshold).astype(int)
+        
+        # Calculate confusion matrix
+        cm = confusion_matrix(y_true, y_pred)
+        tn, fp, fn, tp = cm.ravel()
+        
+        # Calculate business cost
+        cost = (fn * fn_cost) + (fp * fp_cost) + (tp * tp_cost) + (tn * tn_cost)
+        costs.append(cost)
+        
+        # Calculate metrics for plotting
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        
+        precisions.append(precision)
+        recalls.append(recall)
+        f1_scores.append(f1)
+    
+    # Find optimal threshold (minimum cost)
+    optimal_idx = np.argmin(costs)
+    optimal_threshold = thresholds[optimal_idx]
+    optimal_cost = costs[optimal_idx]
+    
+    # Calculate cost at default threshold (0.5)
+    default_idx = np.argmin(np.abs(thresholds - 0.5))
+    default_cost = costs[default_idx]
+    
+    # Calculate metrics at optimal threshold
+    y_pred_optimal = (y_pred_proba >= optimal_threshold).astype(int)
+    cm_optimal = confusion_matrix(y_true, y_pred_optimal)
+    tn, fp, fn, tp = cm_optimal.ravel()
+    
+    print(f"\n✓ Optimization Complete!")
+    print(f"  Optimal Threshold: {optimal_threshold:.4f}")
+    print(f"  Cost at Optimal:   ${optimal_cost:,.2f}")
+    print(f"  Cost at Default (0.5): ${default_cost:,.2f}")
+    print(f"  Savings: ${default_cost - optimal_cost:,.2f} ({((default_cost - optimal_cost)/default_cost)*100:.1f}%)")
+    print(f"\n  At Optimal Threshold:")
+    print(f"    Precision: {precisions[optimal_idx]:.4f}")
+    print(f"    Recall:    {recalls[optimal_idx]:.4f}")
+    print(f"    F1-Score:  {f1_scores[optimal_idx]:.4f}")
+    print(f"    Confusion Matrix: TP={tp}, FP={fp}, FN={fn}, TN={tn}")
+    
+    # Create visualization
+    if save_path:
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        
+        # Plot 1: Cost vs Threshold
+        ax1 = axes[0, 0]
+        ax1.plot(thresholds, costs, 'b-', linewidth=2, label='Total Cost')
+        ax1.axvline(optimal_threshold, color='red', linestyle='--', linewidth=2, 
+                   label=f'Optimal: {optimal_threshold:.3f}')
+        ax1.axvline(0.5, color='orange', linestyle='--', linewidth=2, 
+                   label='Default: 0.500')
+        ax1.set_xlabel('Classification Threshold', fontsize=12, fontweight='bold')
+        ax1.set_ylabel('Total Business Cost ($)', fontsize=12, fontweight='bold')
+        ax1.set_title('Threshold vs Business Cost', fontsize=14, fontweight='bold')
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+        
+        # Plot 2: Precision & Recall vs Threshold
+        ax2 = axes[0, 1]
+        ax2.plot(thresholds, precisions, 'g-', linewidth=2, label='Precision')
+        ax2.plot(thresholds, recalls, 'b-', linewidth=2, label='Recall')
+        ax2.plot(thresholds, f1_scores, 'purple', linewidth=2, label='F1-Score')
+        ax2.axvline(optimal_threshold, color='red', linestyle='--', linewidth=2)
+        ax2.set_xlabel('Classification Threshold', fontsize=12, fontweight='bold')
+        ax2.set_ylabel('Metric Value', fontsize=12, fontweight='bold')
+        ax2.set_title('Metrics vs Threshold', fontsize=14, fontweight='bold')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+        ax2.set_ylim([0, 1])
+        
+        # Plot 3: Confusion Matrix Components vs Threshold
+        ax3 = axes[1, 0]
+        
+        # Recalculate for all components
+        tps, fps, fns, tns = [], [], [], []
+        for threshold in thresholds:
+            y_pred = (y_pred_proba >= threshold).astype(int)
+            cm = confusion_matrix(y_true, y_pred)
+            tn, fp, fn, tp = cm.ravel()
+            tps.append(tp)
+            fps.append(fp)
+            fns.append(fn)
+            tns.append(tn)
+        
+        ax3.plot(thresholds, tps, label='True Positives (Caught Frauds)', linewidth=2)
+        ax3.plot(thresholds, fps, label='False Positives (False Alarms)', linewidth=2)
+        ax3.plot(thresholds, fns, label='False Negatives (Missed Frauds)', linewidth=2)
+        ax3.axvline(optimal_threshold, color='red', linestyle='--', linewidth=2)
+        ax3.set_xlabel('Classification Threshold', fontsize=12, fontweight='bold')
+        ax3.set_ylabel('Count', fontsize=12, fontweight='bold')
+        ax3.set_title('Confusion Matrix Components vs Threshold', fontsize=14, fontweight='bold')
+        ax3.legend()
+        ax3.grid(True, alpha=0.3)
+        
+        # Plot 4: Summary Table
+        ax4 = axes[1, 1]
+        ax4.axis('off')
+        
+        summary_text = f"""
+        THRESHOLD OPTIMIZATION SUMMARY
+        ═══════════════════════════════════════
+        
+        Optimal Threshold: {optimal_threshold:.4f}
+        Default Threshold: 0.5000
+        
+        COST COMPARISON:
+        • Cost at Optimal:     ${optimal_cost:>12,.2f}
+        • Cost at Default:     ${default_cost:>12,.2f}
+        • Savings:             ${default_cost - optimal_cost:>12,.2f}
+        • Improvement:         {((default_cost - optimal_cost)/default_cost)*100:>12.1f}%
+        
+        PERFORMANCE AT OPTIMAL THRESHOLD:
+        • Precision:           {precisions[optimal_idx]:>12.4f}
+        • Recall:              {recalls[optimal_idx]:>12.4f}
+        • F1-Score:            {f1_scores[optimal_idx]:>12.4f}
+        
+        CONFUSION MATRIX AT OPTIMAL:
+        • True Positives:      {tp:>12,}
+        • False Positives:     {fp:>12,}
+        • False Negatives:     {fn:>12,}
+        • True Negatives:      {tn:>12,}
+        
+        RECOMMENDATION:
+        Use threshold = {optimal_threshold:.4f} in production
+        to minimize business cost.
+        """
+        
+        ax4.text(0.1, 0.5, summary_text, 
+                fontsize=11, 
+                family='monospace',
+                verticalalignment='center',
+                bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
+        
+        plt.suptitle('Threshold Optimization for Fraud Detection', 
+                    fontsize=18, fontweight='bold', y=0.995)
+        plt.tight_layout()
+        
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"\n✓ Threshold optimization plot saved to: {save_path}")
+        plt.close()
+    
+    return {
+        'optimal_threshold': float(optimal_threshold),
+        'optimal_cost': float(optimal_cost),
+        'default_cost': float(default_cost),
+        'savings': float(default_cost - optimal_cost),
+        'savings_percentage': float((default_cost - optimal_cost) / default_cost * 100),
+        'precision_at_optimal': float(precisions[optimal_idx]),
+        'recall_at_optimal': float(recalls[optimal_idx]),
+        'f1_at_optimal': float(f1_scores[optimal_idx])
+    }
+        
 if __name__ == "__main__":
     print("Test calculation metrics") 
     
