@@ -71,7 +71,7 @@ class LightGBMFraudDetector:
             k_neighbors=5
         )
         
-        X_resampled, y_resampled = self.smote.fit_resample(X, y)
+        X_resampled, y_resampled = self.smote.fit_resample(X, y) # type: ignore
         
         print(f"Resampled fraud count: {np.sum(y_resampled == 1):,}")
         

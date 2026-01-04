@@ -1,0 +1,54 @@
+{
+  "model_name": "03_xgboost_smote",
+  "model_type": "XGBoostFraudDetector",
+  "sampling_method": "SMOTE",
+  "validation_metrics": {
+    "confusion_matrix": {
+      "tn": 56816,
+      "fp": 88,
+      "fn": 13,
+      "tp": 44
+    },
+    "precision": 0.3333333333333333,
+    "recall": 0.7719298245614035,
+    "f1_score": 0.4656084656084656,
+    "accuracy": 0.9982268569723144,
+    "roc_auc": 0.9562334593689341,
+    "pr_auc": 0.7546103821176903,
+    "matthews_corr": 0.5065749927585881,
+    "total_cost": 2478.0,
+    "cost_per_transaction": 0.04350344972876179,
+    "baseline_cost": 8550.0,
+    "savings": 6072.0,
+    "savings_percentage": 71.01754385964912,
+    "total_samples": 56961,
+    "total_frauds": 57,
+    "fraud_rate": 0.0010006846789908884
+  },
+  "test_metrics": {
+    "confusion_matrix": {
+      "tn": 56877,
+      "fp": 10,
+      "fn": 19,
+      "tp": 56
+    },
+    "precision": 0.8484848484848485,
+    "recall": 0.7466666666666667,
+    "f1_score": 0.7943262411347518,
+    "accuracy": 0.9994908886626171,
+    "roc_auc": 0.9560456108894241,
+    "pr_auc": 0.759631217374595,
+    "matthews_corr": 0.7956990107613099,
+    "total_cost": 3012.0,
+    "cost_per_transaction": 0.052877356834380815,
+    "baseline_cost": 11250.0,
+    "savings": 8238.0,
+    "savings_percentage": 73.22666666666666,
+    "total_samples": 56962,
+    "total_frauds": 75,
+    "fraud_rate": 0.001316667251852112
+  },
+  "optimal_threshold": 0.8441551551551552,
+  "run_id": "f15b631c228842e8a46f2083fde403d3",
+  "timestamp": "2026-01-03T20:07:03.861758"
+}

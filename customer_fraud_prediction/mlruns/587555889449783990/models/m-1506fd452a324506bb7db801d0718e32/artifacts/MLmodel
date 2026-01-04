@@ -1,0 +1,51 @@
+artifact_path: file:///C:/Users/jhoni/Documents/LooperAI/repositorios/ml-ai-ops-demos/customer_churn_prediction/mlruns/587555889449783990/models/m-1506fd452a324506bb7db801d0718e32/artifacts
+flavors:
+  lightgbm:
+    code: null
+    data: model.pkl
+    lgb_version: 4.6.0
+    model_class: lightgbm.sklearn.LGBMClassifier
+  python_function:
+    data: model.pkl
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.lightgbm
+    python_version: 3.9.13
+is_signature_from_type_hint: false
+mlflow_version: 3.1.4
+model_id: m-1506fd452a324506bb7db801d0718e32
+model_size_bytes: 348906
+model_uuid: m-1506fd452a324506bb7db801d0718e32
+prompts: null
+run_id: e4212064ec6a4715b911d16feeb1e5e5
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "V1", "required": true}, {"type": "double",
+    "name": "V2", "required": true}, {"type": "double", "name": "V3", "required":
+    true}, {"type": "double", "name": "V4", "required": true}, {"type": "double",
+    "name": "V5", "required": true}, {"type": "double", "name": "V6", "required":
+    true}, {"type": "double", "name": "V7", "required": true}, {"type": "double",
+    "name": "V8", "required": true}, {"type": "double", "name": "V9", "required":
+    true}, {"type": "double", "name": "V10", "required": true}, {"type": "double",
+    "name": "V11", "required": true}, {"type": "double", "name": "V12", "required":
+    true}, {"type": "double", "name": "V13", "required": true}, {"type": "double",
+    "name": "V14", "required": true}, {"type": "double", "name": "V15", "required":
+    true}, {"type": "double", "name": "V16", "required": true}, {"type": "double",
+    "name": "V17", "required": true}, {"type": "double", "name": "V18", "required":
+    true}, {"type": "double", "name": "V19", "required": true}, {"type": "double",
+    "name": "V20", "required": true}, {"type": "double", "name": "V21", "required":
+    true}, {"type": "double", "name": "V22", "required": true}, {"type": "double",
+    "name": "V23", "required": true}, {"type": "double", "name": "V24", "required":
+    true}, {"type": "double", "name": "V25", "required": true}, {"type": "double",
+    "name": "V26", "required": true}, {"type": "double", "name": "V27", "required":
+    true}, {"type": "double", "name": "V28", "required": true}, {"type": "double",
+    "name": "Amount", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-01-04 00:48:08.394893'

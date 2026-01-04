@@ -23,7 +23,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     This function calculate both standard ML and business metrics for fraud detection
     
     Parameters:
-23    y_true : array-like, shape (n_samples,)
+    y_true : array-like, shape (n_samples,)
         True binary labels (0 = legitimate, 1 = fraud)
         
     y_pred : array-like, shape (n_samples,)
@@ -55,9 +55,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
                      roc_auc, pr_auc, matthews_corr, total_cost, cost_per_transaction
     """
     
-    # ============================================================================
     # STEP 1: CONFUSION MATRIX CALCULATION
-    # ============================================================================
     cm = confusion_matrix(y_true, y_pred)
 
     # Extract all values from confusion matrix
@@ -73,10 +71,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     print(f"False Negatives: {fn:,}")
     print(f"True Positives:  {tp:,}")
     
-     
-    # ============================================================================
     # STEP 2: STANDARD CLASSIFICATION METRICS
-    # ============================================================================
     # Precision
     precision = precision_score(y_true,y_pred,zero_division=0)
     
@@ -95,9 +90,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     print(f"F1-Score:  {f1:.4f}")
     print(f"Accuracy:  {accuracy:.4f} (misleading for imbalanced data)")
     
-    # ============================================================================
     # STEP 3: IMBALANCED-DATA-SPECIFIC METRICS
-    # ============================================================================
     # ROC-AUC 
     try:
         roc_auc = roc_auc_score(y_true,y_pred_proba)
@@ -120,9 +113,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     print(f"PR-AUC:     {pr_auc:.4f} (better for imbalanced)")
     print(f"Matthews Correlation: {mcc:.4f}")
     
-    # ============================================================================
     # STEP 4: BUSINESS METRICS (COST-SENSITIVE LEARNING)
-    # ============================================================================
     # Calculate total cost across all transactions
     total_cost = (
         (fn * fn_cost) +  # Missed fraud losses
@@ -150,9 +141,7 @@ def calculate_metrics(y_true, y_pred, y_pred_proba,
     print(f"False Alarms (FP):      {fp:,} * ${fp_cost} = ${fp * fp_cost:,.2f}")
     print(f"Caught Frauds (TP):     {tp:,} * ${tp_cost} = ${tp * tp_cost:,.2f}")
 
-    # ============================================================================
     # STEP 5: RETURN ALL METRICS AS DICTIONARY
-    # ============================================================================
     return {
         # Confusion Matrix Components
         'confusion_matrix': {
@@ -325,7 +314,7 @@ def plot_precision_recall_curve(y_true,y_pred_proba, save_path=None):
     pr_auc = average_precision_score(y_true, y_pred_proba)
     
     # Calculate basesline
-    fraud_rate = np.mean(y_pred)
+    fraud_rate = np.mean(y_pred_proba)
     
     # Create figure
     plt.figure(figsize=(10, 8))
@@ -415,7 +404,6 @@ def find_optimal_threshold(y_true, y_pred_proba,
     3. Returning the threshold with minimum cost
     
     Parameters:
-    -----------
     y_true : array-like
         True binary labels
         
@@ -429,26 +417,14 @@ def find_optimal_threshold(y_true, y_pred_proba,
         Path to save the threshold optimization plot
     
     Returns:
-    --------
     dict : Contains optimal_threshold, optimal_cost, cost_at_default (0.5)
     
     Notes:
-    ------
     For fraud detection with extreme imbalance:
     - Default threshold (0.5) often catches <30% of frauds
     - Optimal threshold is typically much lower (0.05 to 0.25)
     - Lower threshold = more false alarms but fewer missed frauds
     - Goal: Minimize total cost, not maximize F1-score
-    
-    Official Reference:
-    ------------------
-    Cost-Sensitive Learning: https://scikit-learn.org/stable/auto_examples/model_selection/plot_cost_sensitive_learning.html
-    
-    Examples:
-    ---------
-    >>> result = find_optimal_threshold(y_val, y_pred_proba, save_path='outputs/threshold.png')
-    >>> print(f"Optimal threshold: {result['optimal_threshold']:.3f}")
-    Optimal threshold: 0.127
     """
     
     # Test range of thresholds
@@ -458,7 +434,7 @@ def find_optimal_threshold(y_true, y_pred_proba,
     recalls = []
     f1_scores = []
     
-    print("\n=== Threshold Optimization ===")
+    print("Threshold Optimization")
     print("Testing 1000 thresholds to minimize business cost...")
     
     # Calculate metrics at each threshold
@@ -497,7 +473,7 @@ def find_optimal_threshold(y_true, y_pred_proba,
     cm_optimal = confusion_matrix(y_true, y_pred_optimal)
     tn, fp, fn, tp = cm_optimal.ravel()
     
-    print(f"\n✓ Optimization Complete!")
+    print(f"\nOptimization Complete!")
     print(f"  Optimal Threshold: {optimal_threshold:.4f}")
     print(f"  Cost at Optimal:   ${optimal_cost:,.2f}")
     print(f"  Cost at Default (0.5): ${default_cost:,.2f}")
@@ -568,7 +544,6 @@ def find_optimal_threshold(y_true, y_pred_proba,
         
         summary_text = f"""
         THRESHOLD OPTIMIZATION SUMMARY
-        ═══════════════════════════════════════
         
         Optimal Threshold: {optimal_threshold:.4f}
         Default Threshold: 0.5000

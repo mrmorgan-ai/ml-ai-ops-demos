@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/jhoni/Documents/LooperAI/repositorios/ml-ai-ops-demos/customer_fraud_prediction/mlruns/0/models/m-54bac48e421f43e99636f8d383a890ec/artifacts
+creation_timestamp: 1767488819662
+experiment_id: '0'
+last_updated_timestamp: 1767488823840
+model_id: m-54bac48e421f43e99636f8d383a890ec
+model_type: null
+name: model
+source_run_id: f15b631c228842e8a46f2083fde403d3
+status: 2
+status_message: null

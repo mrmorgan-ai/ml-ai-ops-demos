@@ -1,0 +1,18 @@
+{
+    "total_transactions": 284807,
+    "fraud_count": 492,
+    "fraud_rate": 0.001727485630620034,
+    "legitimate_count": 284315,
+    "avg_transaction_amount": 88.34961925093133,
+    "max_transaction_amount": 25691.16,
+    "min_transaction_amount": 0.0,
+    "time_span_hours": 47.99777777777778,
+    "features_count": 30,
+    "avg_fraud_amount": 122.21132113821139,
+    "median_fraud_amount": 9.25,
+    "split_strategy": "temporal",
+    "train_samples": 170884,
+    "val_samples": 56961,
+    "test_samples": 56962,
+    "split_timestamp": "2026-01-03T19:37:12.037641"
+}
