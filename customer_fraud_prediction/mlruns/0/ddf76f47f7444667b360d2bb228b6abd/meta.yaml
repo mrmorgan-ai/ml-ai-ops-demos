@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/jhoni/Documents/LooperAI/repositorios/ml-ai-ops-demos/customer_fraud_prediction/mlruns/0/ddf76f47f7444667b360d2bb228b6abd/artifacts
+end_time: 1767488861966
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: ddf76f47f7444667b360d2bb228b6abd
+run_name: 04_lightgbm_baseline_class_weights
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767488823891
+status: 3
+tags: []
+user_id: jhoni

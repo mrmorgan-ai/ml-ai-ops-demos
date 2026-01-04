@@ -1,0 +1,54 @@
+{
+  "model_name": "04_lightgbm_baseline_class_weights",
+  "model_type": "LightGBMFraudDetector",
+  "sampling_method": "class_weights",
+  "validation_metrics": {
+    "confusion_matrix": {
+      "tn": 56684,
+      "fp": 220,
+      "fn": 20,
+      "tp": 37
+    },
+    "precision": 0.14396887159533073,
+    "recall": 0.6491228070175439,
+    "f1_score": 0.2356687898089172,
+    "accuracy": 0.9957865908253015,
+    "roc_auc": 0.8468178785569294,
+    "pr_auc": 0.21088722221253228,
+    "matthews_corr": 0.3044162997957944,
+    "total_cost": 4174.0,
+    "cost_per_transaction": 0.07327820789663103,
+    "baseline_cost": 8550.0,
+    "savings": 4376.0,
+    "savings_percentage": 51.18128654970761,
+    "total_samples": 56961,
+    "total_frauds": 57,
+    "fraud_rate": 0.0010006846789908884
+  },
+  "test_metrics": {
+    "confusion_matrix": {
+      "tn": 56732,
+      "fp": 155,
+      "fn": 28,
+      "tp": 47
+    },
+    "precision": 0.23267326732673269,
+    "recall": 0.6266666666666667,
+    "f1_score": 0.33935018050541516,
+    "accuracy": 0.9967873319054809,
+    "roc_auc": 0.832027821236252,
+    "pr_auc": 0.2399971874861572,
+    "matthews_corr": 0.38061374418289107,
+    "total_cost": 5069.0,
+    "cost_per_transaction": 0.08898915066184473,
+    "baseline_cost": 11250.0,
+    "savings": 6181.0,
+    "savings_percentage": 54.94222222222223,
+    "total_samples": 56962,
+    "total_frauds": 75,
+    "fraud_rate": 0.001316667251852112
+  },
+  "optimal_threshold": 0.996003003003003,
+  "run_id": "e4212064ec6a4715b911d16feeb1e5e5",
+  "timestamp": "2026-01-03T19:48:14.288654"
+}

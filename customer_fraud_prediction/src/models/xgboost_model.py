@@ -104,7 +104,7 @@ class XGBoostFraudDetector:
         )
         
         # Apply SMOTE
-        X_resampled, y_resampled = self.smote.fit_resample(X,y)
+        X_resampled, y_resampled = self.smote.fit_resample(X,y) # type: ignore
         
         print(f"Resampled shape: {X_resampled.shape}")
         print(f"Resampled fraud count: {np.sum(y_resampled == 1):,}")
@@ -217,6 +217,23 @@ class XGBoostFraudDetector:
         
         return self.model.predict(X)
 
+    def predict_proba(self, X):
+        """
+        Predict class probabilities
+        
+        Parameters:
+        X : array-like
+            Features to predict
+        
+        Returns:
+        array : Predicted probabilities, shape (n_samples, 2)
+                [:, 0] = probability of legitimate
+                [:, 1] = probability of fraud
+        """
+        if self.model is None:
+            raise ValueError("Model not trained")
+        
+        return self.model.predict_proba(X)
     def get_feature_importance(self):
         """
         Get feature importance scores

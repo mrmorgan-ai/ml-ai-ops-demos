@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 class FraudDataLoader:
-    def __init__(self, data_path, random_state=42):
+    def __init__(self, data_path="", random_state=42):
         self.data_path = data_path
         self.random_state = random_state
         self.scaler = StandardScaler()
@@ -69,15 +69,9 @@ class FraudDataLoader:
         val_df = df_sorted.iloc[train_end:val_end].copy()
         test_df = df_sorted.iloc[val_end:].copy()
 
-        print(
-            f"Train: {len(train_df):,} transactions ({train_df['Class'].sum()} frauds, {train_df['Class'].mean():.4%} fraud rate)"
-        )
-        print(
-            f"Val:   {len(val_df):,} transactions ({val_df['Class'].sum()} frauds, {val_df['Class'].mean():.4%} fraud rate)"
-        )
-        print(
-            f"Test:  {len(test_df):,} transactions ({test_df['Class'].sum()} frauds, {test_df['Class'].mean():.4%} fraud rate)"
-        )
+        print(f"Train: {len(train_df):,} transactions ({train_df['Class'].sum()} frauds, {train_df['Class'].mean():.4%} fraud rate)")
+        print(f"Val:   {len(val_df):,} transactions ({val_df['Class'].sum()} frauds, {val_df['Class'].mean():.4%} fraud rate)")
+        print(f"Test:  {len(test_df):,} transactions ({test_df['Class'].sum()} frauds, {test_df['Class'].mean():.4%} fraud rate)")
 
         return train_df, val_df, test_df
 
@@ -112,13 +106,15 @@ class FraudDataLoader:
         X_train_scaled["Amount"] = self.scaler.fit_transform(X_train[["Amount"]])
         X_val_scaled["Amount"] = self.scaler.transform(X_val[["Amount"]])
         X_test_scaled["Amount"] = self.scaler.transform(X_test[["Amount"]])
+        
+        return X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test
 
     def save_splits(
         self,
         train_df,
         val_df,
         test_df,
-        output_dir="data/processed/customer_fraud_detection",
+        output_dir="data/processed",
     ):
         os.makedirs(output_dir, exist_ok=True)
 
@@ -129,7 +125,7 @@ class FraudDataLoader:
         print(f"\nSaved files to {output_dir}")
 
         return {
-            "train_path": f"{output_dir}/train.csv",
-            "val_path": f"{output_dir}/val.csv",
-            "test_path": f"{output_dir}/test.csv",
+            "train_path": f"{output_dir}/train_df.csv",
+            "val_path": f"{output_dir}/val_df.csv",
+            "test_path": f"{output_dir}/test_df.csv",
         }

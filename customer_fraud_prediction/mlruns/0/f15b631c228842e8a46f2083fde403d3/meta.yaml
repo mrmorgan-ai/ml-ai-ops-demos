@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/jhoni/Documents/LooperAI/repositorios/ml-ai-ops-demos/customer_fraud_prediction/mlruns/0/f15b631c228842e8a46f2083fde403d3/artifacts
+end_time: 1767488823875
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f15b631c228842e8a46f2083fde403d3
+run_name: 03_xgboost_smote
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767488793683
+status: 3
+tags: []
+user_id: jhoni
